@@ -1,0 +1,96 @@
+package vcmsa.ci.assignment23screen
+
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+
+class FlashcardQuestionScreen : AppCompatActivity() {
+
+    // Arrays storing questions and answers
+    private val questions = arrayOf(
+        "Nelson Mandela was the president in 1994.",
+        "South Africa is located in the southern tip of Africa.",
+        "Pretoria is the capital city of South Africa.",
+        "South Africa is known for its diamond mines.",
+        "The Roman Empire lasted over 1500 years."
+    )
+
+    private val answers = arrayOf(true, true, true, false, false)
+
+    // Variables
+    private var currentQuestionIndex = 0
+    private var score = 0
+
+    // UI Components
+    private lateinit var tvQuestion: TextView
+    private lateinit var tvFeedback: TextView
+    private lateinit var btnTrue: Button
+    private lateinit var btnFalse: Button
+    private lateinit var btnNext: Button
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_flashcard_question_screen)
+
+        // Link UI elements
+        tvQuestion = findViewById(R.id.tvQuestion)
+        tvFeedback = findViewById(R.id.tvFeedback)
+        btnTrue = findViewById(R.id.btnTrue)
+        btnFalse = findViewById(R.id.btnFalse)
+        btnNext = findViewById(R.id.btnNext)
+
+        displayQuestion()
+
+        // Answer buttons
+        btnTrue.setOnClickListener { checkAnswer(true) }
+        btnFalse.setOnClickListener { checkAnswer(false) }
+
+        // Next button
+        btnNext.setOnClickListener {
+            currentQuestionIndex++
+            if (currentQuestionIndex < questions.size) {
+                tvFeedback.text = ""
+                displayQuestion()
+                btnTrue.isEnabled = true
+                btnFalse.isEnabled = true
+            } else {
+                // Navigate to Score screen
+                val intent = Intent(this, ScoreScreen::class.java)
+                intent.putExtra("score", score)
+                startActivity(intent)
+                finish()
+            }
+        }
+
+
+        // Insets handling
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+    // Show the current question
+    private fun displayQuestion() {
+        tvQuestion.text = questions[currentQuestionIndex]
+    }
+
+    // Check if the user's answer is correct
+    private fun checkAnswer(userAnswer: Boolean) {
+        if (userAnswer == answers[currentQuestionIndex]) {
+            tvFeedback.text = "Correct!"
+            score++
+        } else {
+            tvFeedback.text = "Incorrect!"
+        }
+        btnTrue.isEnabled = false
+        btnFalse.isEnabled = false
+    }
+}
